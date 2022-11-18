@@ -1,6 +1,5 @@
-from __future__ import print_function
-
 import io
+import time
 
 import httplib2
 import os
@@ -24,7 +23,7 @@ class GoogleLoader:
         # If modifying these scopes, delete your previously saved credentials
         # at ~/.credentials/drive-python-quickstart.json
         SCOPES = 'https://www.googleapis.com/auth/drive'
-        CLIENT_SECRET_FILE = 'client_secret.json'  # Ваш client_secret.json, полученный в console.cloud.google.com/apis
+        CLIENT_SECRET_FILE = 'credentials.json'  # Ваш credentials.json, полученный в console.cloud.google.com/apis
         APPLICATION_NAME = 'google-drive'
 
         home_dir = os.path.expanduser('~')
@@ -37,13 +36,10 @@ class GoogleLoader:
         if not credentials or credentials.invalid:
             flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
             flow.user_agent = APPLICATION_NAME
-            if flags:
-                credentials = tools.run_flow(flow, store, flags)
-            else:  # Needed only for compatibility with Python 2.6
-                credentials = tools.run_flow(flow, store)
-            print('Storing credentials to ' + credential_path)
+            credentials = tools.run_flow(flow, store)
         http = credentials.authorize(httplib2.Http())
         self.service = discovery.build('drive', 'v3', http=http)  # Подготовленный авторизованный объект для запроса
+
 
     def download_file(self, real_file_id):
         """Downloads a file
@@ -77,11 +73,14 @@ class GoogleLoader:
 
 if __name__ == '__main__':
     # Создание авторизованного объекта для запросов к google drive
+    time_start = time.time()
     google_loader = GoogleLoader()
     # Для загрузки файла с google drive нужен id файла
     # id файла берём из адресной строки при открытом файле в браузере
     # Например, https://docs.google.com/spreadsheets/d/1pOuPTSQUUOCVbNOG7kSDQhwUpYJF0vsh/edit#gid=593977617
     # 1pOuPTSQUUOCVbNOG7kSDQhwUpYJF0vsh - это id файла для скачивания
     # Ниже вписать id своего файла
-    file_value = google_loader.download_file(real_file_id='1pOuPTSQUUOCVbNOG7kSDQhwUpYJF0vsh')
-    # print(file_value)
+    # https://drive.google.com/file/d/18V-UIzvlwtdDkOnp05sjFGD15PTUwmmS/view?usp=share_link
+    file_value = google_loader.download_file(real_file_id='18V-UIzvlwtdDkOnp05sjFGD15PTUwmmS')
+    time_stop = time.time()
+    print(time_stop - time_start)
